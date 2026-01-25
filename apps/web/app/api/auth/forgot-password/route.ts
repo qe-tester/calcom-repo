@@ -17,16 +17,15 @@ async function handler(req: NextRequest) {
     return NextResponse.json({ message: "email is required" }, { status: 400 });
   }
 
-  // fallback to email if ip is not present
-  let ip = (req.headers.get("x-real-ip") as string) ?? email.data;
+  // Prefer x-forwarded-for (first IP), then x-real-ip, then fall back to email (no IP available)
+  const forwardedFor = req.headers.get("x-forwarded-for");
+  const forwardedIp = forwardedFor?.split(",")[0]?.trim();
 
-  const forwardedFor = req.headers.get("x-forwarded-for") as string;
-  if (!ip && forwardedFor) {
-    ip = forwardedFor?.split(",").at(0) ?? email.data;
-  }
+  const realIp = req.headers.get("x-real-ip")?.trim();
+
+  const ip = forwardedIp || realIp || email.data;
 
   // 10 requests per minute
-
   await checkRateLimitAndThrowError({
     rateLimitingType: "core",
     identifier: `forgotPassword:${piiHasher.hash(ip)}`,
