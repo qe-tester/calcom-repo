@@ -38,7 +38,6 @@ async function ensureSignupIsEnabled(body: Record<string, string>) {
 
 async function handler(req: NextRequest) {
   const remoteIp = getIP(req);
-  // Use a try catch instead of returning res every time
   try {
     // Rate limit: 10 signups per 60 seconds per IP
     await checkRateLimitAndThrowError({
@@ -48,8 +47,12 @@ async function handler(req: NextRequest) {
 
     const body = await parseRequestData(req);
     const query = Object.fromEntries(req.nextUrl.searchParams.entries());
+
+    // cf-access-token may be absent for non-browser or internal requests
+    const cfToken = req.headers.get("cf-access-token");
+
     await checkCfTurnstileToken({
-      token: req.headers.get("cf-access-token") as string,
+      token: cfToken ?? undefined,
       remoteIp,
     });
 
