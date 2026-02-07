@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
-import { TimezoneSelect } from "@calcom/features/components/timezone-select";
+import { TimezoneSelect } from "@calcom/web/modules/timezone/components/TimezoneSelect";
 import SectionBottomActions from "@calcom/features/settings/SectionBottomActions";
 import SettingsHeader from "@calcom/features/settings/appDir/SettingsHeader";
 import { formatLocalizedDateTime } from "@calcom/lib/dayjs";
@@ -24,6 +24,7 @@ import { showToast } from "@calcom/ui/components/toast";
 import { revalidateTravelSchedules } from "@calcom/web/app/cache/travelSchedule";
 
 import TravelScheduleModal from "@components/settings/TravelScheduleModal";
+import { Icon } from "@calcom/ui/components/icon";
 
 export type FormValues = {
   locale: {
@@ -317,6 +318,7 @@ const GeneralView = ({ user, travelSchedules }: GeneralViewProps) => {
               )}
             />
             <div className="text-gray text-subtle mt-2 flex items-center text-xs">
+              <Icon name="info" className="mr-2" />
               {t("timeformat_profile_hint")}
             </div>
             <Controller
