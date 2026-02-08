@@ -56,4 +56,28 @@ describe("invoice.payment_succeeded webhook", () => {
     expect(handleProrationPaymentSuccess).not.toHaveBeenCalled();
     expect(result).toEqual({ success: true, message: "no proration line items in invoice" });
   });
+
+  it("handles mixed line items and processes proration when present", async () => {
+    const data = {
+      object: {
+        lines: {
+          data: [
+            {
+              metadata: {
+                type: "other",
+              },
+            },
+            {
+              metadata: buildMonthlyProrationMetadata({ prorationId: "pr_456" }),
+            },
+          ],
+        },
+      },
+    } as unknown as SWHMap["invoice.payment_succeeded"]["data"];
+
+    const result = await handler(data);
+
+    expect(handleProrationPaymentSuccess).toHaveBeenCalledWith("pr_456");
+    expect(result).toEqual({ success: true });
+  });
 });
